@@ -1,0 +1,32 @@
+stages:
+  - validate
+  - deploy
+
+default:
+  tags:
+    - docker
+
+validate_declarations:
+  stage: validate
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache jq
+  script:
+    - echo "Validating AS3 JSON syntax..."
+    - for file in *.json; do echo "Checking $file..."; jq . "$file" > /dev/null; done
+    - echo "All JSON files are valid syntax."
+
+deploy_as3_dev:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - echo "Submitting AS3 Declaration to BIG-IP (${BIGIP_MGMT_IP})..."
+    - |
+      curl -k -s -u "${BIGIP_USER}:${BIGIP_PASS}" \
+        -X POST \
+        -H "Content-Type: application/json" \
+        -d @declaration_1_http.json \
+        https://${BIGIP_MGMT_IP}/mgmt/shared/appsvcs/declare | tee response.json
+    - grep -q '"code":200' response.json || (echo "AS3 Deployment Failed!" && exit 1)
+  only:
+    - main

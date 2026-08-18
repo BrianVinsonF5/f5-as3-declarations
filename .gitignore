@@ -1,0 +1,7 @@
+# Response logs and temp artifacts from CI/CD or local curl execution
+response.json
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db

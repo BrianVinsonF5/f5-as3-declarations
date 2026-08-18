@@ -1,0 +1,113 @@
+{
+  "class": "ADC",
+  "schemaVersion": "3.42.0",
+  "id": "urn:uuid:f5-lab-as3-03",
+  "label": "Multi-Tenant Security Enclaves with APM",
+  "Enclave_Dev": {
+    "class": "Tenant",
+    "App_FrontEnd": {
+      "class": "Application",
+      "template": "http",
+      "serviceMain": {
+        "class": "Service_HTTP",
+        "virtualAddresses": [
+          "10.1.20.202"
+        ],
+        "pool": "dev_pool"
+      },
+      "dev_pool": {
+        "class": "Pool",
+        "monitors": [
+          "http"
+        ],
+        "members": [
+          {
+            "servicePort": 80,
+            "serverAddresses": [
+              "10.1.20.105",
+              "10.1.20.106"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Enclave_Prod": {
+    "class": "Tenant",
+    "App_Core": {
+      "class": "Application",
+      "template": "http",
+      "serviceMain": {
+        "class": "Service_HTTP",
+        "virtualAddresses": [
+          "10.1.20.203"
+        ],
+        "pool": "prod_pool"
+      },
+      "prod_pool": {
+        "class": "Pool",
+        "monitors": [
+          "http"
+        ],
+        "members": [
+          {
+            "servicePort": 80,
+            "serverAddresses": [
+              "10.1.20.107",
+              "10.1.20.108",
+              "10.1.20.109"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "Enclave_Secure": {
+    "class": "Tenant",
+    "Secure_App": {
+      "class": "Application",
+      "template": "https",
+      "serviceMain": {
+        "class": "Service_HTTPS",
+        "virtualAddresses": [
+          "10.1.20.210"
+        ],
+        "virtualPort": 443,
+        "pool": "secure_backend_pool",
+        "profileAccess": {
+          "bigip": "/Common/Global_APM_Policy"
+        },
+        "serverTLS": "webtls"
+      },
+      "secure_backend_pool": {
+        "class": "Pool",
+        "monitors": [
+          "http"
+        ],
+        "members": [
+          {
+            "servicePort": 80,
+            "serverAddresses": [
+              "10.1.20.110",
+              "10.1.20.111",
+              "10.1.20.112"
+            ]
+          }
+        ]
+      },
+      "webtls": {
+        "class": "TLS_Server",
+        "certificates": [
+          {
+            "certificate": "webcert"
+          }
+        ]
+      },
+      "webcert": {
+        "class": "Certificate",
+        "certificate": "-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK2bN...\n-----END CERTIFICATE-----",
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAz3...\n-----END RSA PRIVATE KEY-----"
+      }
+    }
+  }
+}

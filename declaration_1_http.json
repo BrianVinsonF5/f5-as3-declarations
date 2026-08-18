@@ -1,0 +1,37 @@
+{
+  "class": "ADC",
+  "schemaVersion": "3.42.0",
+  "id": "urn:uuid:f5-lab-as3-01",
+  "label": "Basic LTM HTTP Deployment",
+  "remark": "Lab 1 - HTTP Virtual Server for Dev Enclave",
+  "Enclave_Dev": {
+    "class": "Tenant",
+    "HTTP_Service": {
+      "class": "Application",
+      "template": "http",
+      "serviceMain": {
+        "class": "Service_HTTP",
+        "virtualAddresses": [
+          "10.1.20.200"
+        ],
+        "virtualPort": 80,
+        "pool": "web_pool"
+      },
+      "web_pool": {
+        "class": "Pool",
+        "monitors": [
+          "http"
+        ],
+        "members": [
+          {
+            "servicePort": 80,
+            "serverAddresses": [
+              "10.1.20.101",
+              "10.1.20.102"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

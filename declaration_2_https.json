@@ -1,0 +1,59 @@
+{
+  "class": "ADC",
+  "schemaVersion": "3.42.0",
+  "id": "urn:uuid:f5-lab-as3-02",
+  "label": "HTTPS TLS Offloading Deployment",
+  "remark": "Lab 2 - Secure Web App",
+  "Enclave_Dev": {
+    "class": "Tenant",
+    "HTTPS_Service": {
+      "class": "Application",
+      "template": "https",
+      "serviceMain": {
+        "class": "Service_HTTPS",
+        "virtualAddresses": [
+          "10.1.20.201"
+        ],
+        "virtualPort": 443,
+        "pool": "secure_web_pool",
+        "serverTLS": "webtls"
+      },
+      "web_pool_monitor": {
+        "class": "Monitor",
+        "monitorType": "http",
+        "send": "GET / HTTP/1.1\r\nHost: example.lab.local\r\n\r\n",
+        "receive": "200 OK"
+      },
+      "secure_web_pool": {
+        "class": "Pool",
+        "monitors": [
+          {
+            "use": "web_pool_monitor"
+          }
+        ],
+        "members": [
+          {
+            "servicePort": 80,
+            "serverAddresses": [
+              "10.1.20.103",
+              "10.1.20.104"
+            ]
+          }
+        ]
+      },
+      "webtls": {
+        "class": "TLS_Server",
+        "certificates": [
+          {
+            "certificate": "webcert"
+          }
+        ]
+      },
+      "webcert": {
+        "class": "Certificate",
+        "certificate": "-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK2bN...\n-----END CERTIFICATE-----",
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAz3...\n-----END RSA PRIVATE KEY-----"
+      }
+    }
+  }
+}
